@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificador de Status do Site</title>
+    <style>
+        body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f5f5f5;
+}
+
+.container {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    max-width: 600px;
+}
+
+h1 {
+    color: #333;
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+h2 {
+    color: #555;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+input, select {
+    width: 95.5%;
+    padding: 0.8rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+.button-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 1rem;
+}
+
+button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 0.8rem;
+    border-radius: 4px;
+    cursor: pointer;
+    flex: 1;
+    font-size: 16px;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+button.secondary {
+    background-color: #2196F3;
+}
+
+button.secondary:hover {
+    background-color: #0b7dda;
+}
+
+.result {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    border-radius: 4px;
+    text-align: center;
+    font-weight: bold;
+    display: none;
+}
+
+.online {
+    background-color: #dff0d8;
+    color: #3c763d;
+}
+
+.offline {
+    background-color: #f2dede;
+    color: #a94442;
+}
+
+.loading {
+    text-align: center;
+    margin-top: 1.5rem;
+    display: none;
+}
+
+.spinner {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border-left-color: #09f;
+    animation: spin 1s linear infinite;
+    margin: 0 auto;
+}
+
+.sites-list {
+    margin-top: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.site-item {
+    padding: 0.8rem;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    display: grid;
+    grid-template-columns: 1fr 100px;
+    gap: 10px;
+}
+
+.site-status {
+    text-align: right;
+    font-weight: bold;
+}
+
+.status-online {
+    color: #3c763d;
+}
+
+.status-offline {
+    color: #a94442;
+}
+
+.status-desconhecido {
+    color: #777;
+}
+
+.site-date {
+    font-size: 0.8rem;
+    color: #777;
+    grid-column: span 2;
+}
+
+.site-item:hover {
+    background-color: #f9f9f9;
+}
+
+.site-item:last-child {
+    border-bottom: none;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 500px;
+    border-radius: 8px;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover {
+    color: black;
+}
+
+.tab {
+    overflow: hidden;
+    border: 1px solid #ccc;
+    background-color: #f1f1f1;
+    border-radius: 4px 4px 0 0;
+}
+
+.tab button {
+    background-color: inherit;
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 14px 16px;
+    transition: 0.3s;
+    color: #333;
+}
+
+.tab button:hover {
+    background-color: #ddd;
+}
+
+.tab button.active {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.tabcontent {
+    display: none;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Verificador de Status do Site</h1>
+        
+        <div class="tab">
+            <button class="tablinks active" onclick="openTab(event, 'manualCheck')">Verificação Manual</button>
+            <button class="tablinks" onclick="openTab(event, 'savedSites')">Sites Salvos</button>
+        </div>
+
+        <div id="manualCheck" class="tabcontent" style="display: block;">    
+            <div class="form-group">
+                <input 
+                    type="text" 
+                    id="website-input" 
+                    placeholder="Digite a URL do site (ex: https://www.exemplo.com)" 
+                    required
+                >
+            </div>  
+        <button id="check-button">Verificar Status</button>
+        <div class="result" id="result">
+            <!-- O resultado será exibido aqui -->
+        </div>
+    </div>
+
+        <div id="savedSites" class="tabcontent">
+            <h2>Sites Registrados</h2>
+            <div class="sites-list" id="sites-list">
+                <!-- Lista de sites será carregada aqui -->
+            </div>
+            <div class="form-group" style="margin-top: 1rem;">
+                <button id="refresh-all-button" class="secondary">Verificar Todos os Sites</button>
+            </div>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Verificando o site...</p>
+        </div>
+        
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const websiteInput = document.getElementById('website-input');
+            const checkButton = document.getElementById('check-button');
+            const loading = document.getElementById('loading');
+            const result = document.getElementById('result');
+            const sitesList = document.getElementById('sites-list');
+            const refreshAllButton = document.getElementById('refresh-all-button');
+            
+            // Carregar sites salvos quando a página carrega
+            loadSavedSites();
+            
+            // Função para abrir as abas
+            window.openTab = function(evt, tabName) {
+                const tabcontent = document.getElementsByClassName("tabcontent");
+                for (let i = 0; i < tabcontent.length; i++) {
+                    tabcontent[i].style.display = "none";
+                }
+                
+                const tablinks = document.getElementsByClassName("tablinks");
+                for (let i = 0; i < tablinks.length; i++) {
+                    tablinks[i].className = tablinks[i].className.replace(" active", "");
+                }
+                
+                document.getElementById(tabName).style.display = "block";
+                evt.currentTarget.className += " active";
+                
+                // Recarregar a lista de sites se clicar na aba de sites salvos
+                if (tabName === 'savedSites') {
+                    loadSavedSites();
+                }
+            }
+            
+            // Função para carregar sites salvos
+            async function loadSavedSites() {
+                try {
+                    const response = await fetch('/get-sites');
+                    const sites = await response.json();
+                    
+                    // Limpar a lista atual
+                    sitesList.innerHTML = '';
+                    
+                    // Adicionar cada site à lista
+                    sites.forEach(site => {
+                        const siteItem = document.createElement('div');
+                        siteItem.className = 'site-item';
+                        
+                        // Determinar a classe de status
+                        let statusClass = 'status-desconhecido';
+                        if (site.status === 'online') {
+                            statusClass = 'status-online';
+                        } else if (site.status === 'offline') {
+                            statusClass = 'status-offline';
+                        }
+                        
+                        // Formatar o HTML do item
+                        siteItem.innerHTML = `
+                            <span>${site.url}</span>
+                            <span class="site-status ${statusClass}">${site.status}</span>
+                            ${site.last_check ? `<span class="site-date">Última verificação: ${site.last_check}</span>` : ''}
+                            ${site.response_time ? `<span class="site-date">Tempo de resposta: ${site.response_time} ms</span>` : ''}
+                        `;
+                        
+                        siteItem.addEventListener('click', function() {
+                            // Mudar para a aba de verificação manual
+                            document.querySelector('.tablinks').click();
+                            // Preencher o campo com a URL do site
+                            websiteInput.value = site.url;
+                            // Verificar o status automaticamente
+                            checkWebsite(site.url);
+                        });
+                        
+                        sitesList.appendChild(siteItem);
+                    });
+                    
+                } catch (error) {
+                    console.error('Erro ao carregar sites:', error);
+                }
+            }
+            
+            // Função para verificar todos os sites
+            async function checkAllSites() {
+                try {
+                    const response = await fetch('/get-sites');
+                    const sites = await response.json();
+                    
+                    // Para cada site, faça uma verificação
+                    for (const site of sites) {
+                        await checkWebsite(site.url, false); // false para não exibir o resultado
+                    }
+                    
+                    // Recarregar a lista após todas as verificações
+                    loadSavedSites();
+                    
+                    // Mostrar mensagem
+                    alert('Todos os sites foram verificados!');
+                    
+                } catch (error) {
+                    console.error('Erro ao verificar todos os sites:', error);
+                    alert('Erro ao verificar todos os sites: ' + error.message);
+                }
+            }
+            
+            // Evento de clique no botão de verificar todos os sites
+            refreshAllButton.addEventListener('click', function() {
+                checkAllSites();
+            });
+            
+            // Função para verificar o site e salvá-lo automaticamente
+            async function checkWebsite(url, showResult = true) {
+                if (showResult) {
+                    loading.style.display = 'block';
+                    result.style.display = 'none';
+                }
+                
+                try {
+                    // Faz uma solicitação para o backend
+                    const response = await fetch('/check-website', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ 
+                            url: url,
+                            // Usar a URL como nome para salvar o site automaticamente
+                            save: true
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (showResult) {
+                        loading.style.display = 'none';
+                        result.style.display = 'block';
+                        
+                        if (data.status === 'online') {
+                            result.className = 'result online';
+                            result.innerHTML = `<p>✅ O site ${url} está ONLINE!</p>`;
+                            if (data.response_time) {
+                                result.innerHTML += `<p>Tempo de resposta: ${data.response_time} ms</p>`;
+                            }
+                        } else {
+                            result.className = 'result offline';
+                            result.innerHTML = `<p>❌ O site ${url} está OFFLINE!</p>`;
+                            if (data.error) {
+                                result.innerHTML += `<p>Erro: ${data.error}</p>`;
+                            }
+                        }
+                        
+                        // Recarregar a lista de sites após salvar
+                        loadSavedSites();
+                    }
+                    
+                    return data;
+                } catch (error) {
+                    if (showResult) {
+                        loading.style.display = 'none';
+                        result.style.display = 'block';
+                        result.className = 'result offline';
+                        result.innerHTML = `<p>❌ Erro ao verificar o site: ${error.message}</p>`;
+                    }
+                    throw error;
+                }
+            }
+            
+            // Evento de clique no botão verificar
+            checkButton.addEventListener('click', function() {
+                let url = websiteInput.value.trim();
+                
+                // Adiciona http:// se não houver protocolo
+                if (url && !url.startsWith('http://') && !url.startsWith('https://')) {
+                    url = 'https://' + url;
+                }
+                
+                if (url) {
+                    checkWebsite(url);
+                } else {
+                    alert('Por favor, digite uma URL válida');
+                }
+            });
+            
+            // Evento de pressionar Enter no input
+            websiteInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    checkButton.click();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
