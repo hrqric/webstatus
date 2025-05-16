@@ -7,7 +7,7 @@ import csv
 import datetime
 from urllib.parse import urlparse
 
-# app = Flask(__name__,static_folder="static", template_folder='templates')
+app = Flask(__name__,static_folder="static", template_folder='templates')
 
 SITES_csv = "sites_database.csv"
 
@@ -22,7 +22,7 @@ def initialize_csv():
             writer.writerow(['GitHub', 'https://www.github.com', 'online', '', ''])
             writer.writerow(['Stack Overflow', 'https://www.stackoverflow.com', 'online', '', ''])
 
-#@app.route('/get-sites', methods=['GET'])
+@app.route('/get-sites', methods=['GET'])
 def get_all_sites():
     sites = []
     if os.path.exists(SITES_csv):
@@ -75,13 +75,13 @@ def add_or_update_site(url,status,response_time=''):
 
     return True
 
-#@app.route('/')
+@app.route('/')
 def index():
     initialize_csv()
     sites = get_all_sites()
     return render_template('index.html', sites=sites)
 
-#@app.route('/check-website', methods=['POST'])
+@app.route('/check-website', methods=['POST'])
 def check_website():
     data = request.json
     url = data.get('url', '')
@@ -149,5 +149,5 @@ def check_website():
             'error': str(e)
         })
 
-# if __name__ == '__main__':
-#   app.run(debug=True)
+if __name__ == '__main__':
+   app.run(debug=True)
