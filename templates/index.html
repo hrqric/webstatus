@@ -405,8 +405,12 @@ button.secondary:hover {
                             save: true
                         })
                     });
+
+                    const data = await response.json(); 
+
+                    console.log("JSON: ", await data);
                     
-                    const data = await response.json();
+                  //  const data = await response.json();
                     
                     if (showResult) {
                         loading.style.display = 'none';
