@@ -1,0 +1,15 @@
+    {
+      "version": 2,
+      "builds": [
+        {
+          "src": "request.py",
+          "use": "@vercel/python"
+        }
+      ],
+      "routes": [
+        {
+          "src": "/(.*)",
+          "dest": "request.py"
+        }
+      ]
+    }

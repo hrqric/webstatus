@@ -39,7 +39,7 @@ def get_all_sites():
     return sites
 
 def add_or_update_site(url,status,response_time=''):
-    now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    now = datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')
     
     sites = get_all_sites()
     site_exists = False
@@ -115,6 +115,7 @@ def check_website():
             })
             
         else:
+            add_or_update_site(url,'offline',response_time)
             return jsonify({
                 'status': 'offline',
                 'error': f'Código de status: {response.status_code}',
